@@ -1,4 +1,7 @@
-﻿namespace CSharp_OPP_05
+﻿using CSharp_OPP_05;
+using System.Net;
+
+namespace CSharp_OPP_05
 {
     internal class Program
     {
@@ -72,6 +75,130 @@
 
             //d) What happens if a declared partial method has no implementation?
             // If a declared partial method has no implementation, the compiler removes its declaration and any calls to it during compilation. This means that there will be no performance overhead, and the method will effectively not exist in the compiled code. The absence of an implementation allows developers to define hooks for optional functionality without forcing them to provide an implementation.
+            #endregion
+            #region Part 02 — Practical
+            /*Q1  Object Copying*/
+            DeliveryAddress address1 = new DeliveryAddress();
+            Shipment shipment1 = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            Shipment shipment2 = shipment1;
+            Shipment shipment3 = shipment1.CopyShipment();
+            /*Q2  Shallow Copy */
+            DeliveryAddress address01 = new DeliveryAddress();
+            address01.City = "Cairo";
+            Shipment shipment01 = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            shipment01.destination = address01;
+
+            Shipment shallowShipment = shipment01.ShallowCopy(); // Shallow copy
+            DeliveryAddress tempAddress = shallowShipment.destination;
+            tempAddress.City = "Giza";
+            shallowShipment.destination = tempAddress;
+            /*Q3  Deep Copy */
+            // --- Q3: Deep Copy Demonstration ---
+            DeliveryAddress originalAddress = new DeliveryAddress();
+            originalAddress.City = "Cairo";
+
+            StandardShipment originalShipment = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            originalShipment.destination = originalAddress;
+
+            // عمل Deep Copy
+            Shipment deepCopyShipment = originalShipment.DeepCopy();
+            DeliveryAddress tempCopiedAddress = deepCopyShipment.destination;
+            tempCopiedAddress.City = "Giza";
+            deepCopyShipment.destination = tempCopiedAddress;
+            /*4  Static Field*/
+            StandardShipment shipmentA = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            StandardShipment shipmentB = new StandardShipment("SH002", "Book", 1m, 20m, address1);
+            StandardShipment shipmentC = new StandardShipment("SH003", "Phone", 2m, 100m, address1);
+            //Console.WriteLine("Total Shipments Created: " + Shipment.TotalShipmentsCreated);
+            /*5  Static Constructor
+*/
+            Console.WriteLine("Shipment System initialized");
+            /*6  Static Method*/
+            int total = Shipment.GetTotalShipmentsCreated();
+            Console.WriteLine("Total Shipments Created: " + total);
+            /*7  Static Class*/
+            DeliveryUtilities.PrintSeparator();
+            DeliveryUtilities.PrintSystemTitle();
+            DeliveryUtilities.PrintSeparator();
+            /*8  Extension Method*/
+            StandardShipment myShipment = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            myShipment.Weight = 3;
+            myShipment.TrackingStatus = "In Transit";
+            /*9  Partial Shipment Class*/
+            // استخدام الـ Extension Methods مباشرة على الكائن
+            string summary = myShipment.GetSummary();
+            Console.WriteLine(summary); 
+
+            bool checkDelivered = myShipment.IsDelivered();
+            Console.WriteLine( checkDelivered);
+            /*10  Partial Method*/
+            myShipment.UpdateTrackingStatus("Out For Delivery");
+            /*11  Main() Checklist*/
+            // 1. Demonstrate reference assignment between two shipment variables.
+            StandardShipment originalShipment01 = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            StandardShipment assignedReferenceShipment = originalShipment;
+            Console.WriteLine("1. Reference assignment demonstrated between two shipment variables.");
+
+            // 2. Demonstrate that reference assignment does not create a new object.
+            assignedReferenceShipment.Weight = 10.5m;
+            Console.WriteLine($"2. Reference assignment does not create a new object. (Original weight is now: {originalShipment.Weight})");
+            DeliveryUtilities.PrintSeparator();
+
+            // 3. Create a Shallow Copy using MemberwiseClone().
+            StandardShipment shallowCopyShipment = (StandardShipment)originalShipment.ShallowCopy();
+            Console.WriteLine("3. Shallow Copy created using MemberwiseClone().");
+
+            // 4. Demonstrate that the shallow copy shares the same DeliveryAddress.
+            bool shareSameAddress = object.ReferenceEquals(originalShipment.destination, shallowCopyShipment.destination);
+            Console.WriteLine($"4. Does shallow copy share the same DeliveryAddress? {shareSameAddress}");
+            DeliveryUtilities.PrintSeparator();
+
+            // 5. Create a Deep Copy (تعديل: بدون إعادة تعريف النوع StandardShipment عشان ما يحصلش تكرار)
+            deepCopyShipment = (StandardShipment)originalShipment.DeepCopy();
+            Console.WriteLine("5. Deep Copy created successfully.");
+
+            // 6. Demonstrate that the deep copy has an independent DeliveryAddress.
+            bool hasIndependentAddress = !object.ReferenceEquals(originalShipment.destination, deepCopyShipment.destination);
+            Console.WriteLine($"6. Does deep copy have an independent DeliveryAddress? {hasIndependentAddress}");
+            DeliveryUtilities.PrintSeparator();
+
+            // 7. Add and demonstrate the static shipment counter.
+            // 8. Demonstrate the static constructor.
+            // 9. Call GetTotalShipmentsCreated().
+            int totalCount = Shipment.GetTotalShipmentsCreated();
+            Console.WriteLine($"7, 8 & 9. Static Counter & Constructor tested. Total Shipments Created: {totalCount}");
+            DeliveryUtilities.PrintSeparator();
+
+            // 10. Create and use DeliveryUtilities.
+            DeliveryUtilities.PrintSystemTitle();
+            DeliveryUtilities.PrintSeparator();
+
+            // 11. Create and use ShipmentExtensions.
+            // 12. Demonstrate GetSummary().
+            StandardShipment sampleShipment = new StandardShipment("SH001", "Laptop", 3m, 80m, address1);
+            sampleShipment.Weight = 4.0m;
+            sampleShipment.TrackingStatus = "Delivered";
+            string Summary = sampleShipment.GetSummary();
+            Console.WriteLine($"11 & 12. ShipmentExtensions & GetSummary(): {summary}");
+
+            // 13. Demonstrate IsDelivered().
+            bool isDelivered = sampleShipment.IsDelivered();
+            Console.WriteLine($"13. Is Delivered? {isDelivered}");
+            DeliveryUtilities.PrintSeparator();
+
+            // 14. Split Shipment into partial class files.
+            Console.WriteLine($"14. Shipment successfully split into partial class files. Current Status: {sampleShipment.GetTrackingStatus()}");
+
+            // 15. Implement and demonstrate the partial method.
+            // (هذا السطر سيقوم تلقائياً باستدعاء وتشغيل الـ Partial Method وطباعة رسالة التغيير)
+            sampleShipment.UpdateTrackingStatus("Out For Delivery");
+            DeliveryUtilities.PrintSeparator();
+
+            // 16. Make sure all functionality from Assignment 04 still works.
+            Console.WriteLine("16. All functionalities from Assignment 04 and 05 are working seamlessly!");
+            DeliveryUtilities.PrintSeparator();
+
+
             #endregion
         }
     }
